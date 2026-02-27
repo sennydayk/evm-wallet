@@ -1,0 +1,128 @@
+.wallets-page__toolbar {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.wallets-page__network {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wallets-page__network-label {
+  font-size: 14px;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wallets-page__help-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+  background-color: var(--color-border, #e5e7eb);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.wallets-page__help-badge:hover {
+  color: var(--color-text);
+  background-color: var(--color-border-hover, #d1d5db);
+}
+
+.wallets-page__help-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  white-space: nowrap;
+  width: max-content;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.wallets-page__help-tooltip:after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-surface);
+}
+
+.wallets-page__help-badge:hover .wallets-page__help-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wallets-page__toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.wallets-page__toggle:hover {
+  border-color: var(--color-border-hover);
+}
+
+.wallets-page__toggle:focus {
+  outline: none;
+}
+
+.wallets-page__toggle:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 2px;
+}
+
+.wallets-page__toggle--active {
+  background-color: var(--color-mint-muted);
+  border-color: var(--color-mint);
+}
+
+.wallets-page__toggle--active:hover {
+  background-color: var(--color-mint-muted);
+  border-color: var(--color-mint-hover);
+}
+
+.wallets-page__toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--color-border);
+  border-radius: 50%;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.wallets-page__toggle--active .wallets-page__toggle-thumb {
+  transform: translate(20px);
+  background-color: var(--color-mint);
+}

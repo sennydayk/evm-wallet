@@ -1,0 +1,13 @@
+.import__description {
+  margin-bottom: 8px;
+}
+
+.import__error {
+  margin-top: 0;
+}
+
+.import__actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}

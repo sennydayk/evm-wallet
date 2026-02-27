@@ -1,0 +1,16 @@
+:root {
+  /* Primary palette */
+  --color-mint: #1beeb0;
+  --color-mint-hover: #2fffc4;
+  --color-mint-muted: rgba(27, 238, 176, 0.15);
+
+  /* Neutrals */
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-elevated: #1a1a1a;
+  --color-border: #2a2a2a;
+  --color-border-hover: #3a3a3a;
+  --color-text: #ffffff;
+  --color-text-muted: #a1a1aa;
+  --color-error: #ef4444;
+}
