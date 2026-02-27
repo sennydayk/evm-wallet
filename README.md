@@ -46,13 +46,6 @@ src/
 └── main.tsx
 ```
 
-## 지원 네트워크
-
-| 네트워크 | RPC URL |
-|----------|---------|
-| Mainnet | `https://mainnet-proxy-rpc.creditcoin.network` |
-| Subnet (Sepolia) | `https://sepolia-proxy-rpc.creditcoin.network` |
-
 ## HD 지갑 경로
 
 - BIP-44 경로: `m/44'/60'/0'/0`
@@ -112,15 +105,6 @@ yarn build
 # 빌드 결과물 미리보기
 yarn preview
 ```
-
-### 스크립트
-
-| 명령어 | 설명 |
-|--------|------|
-| `yarn dev` | 개발 서버 실행 (Vite) |
-| `yarn build` | TypeScript 검사 후 프로덕션 빌드 |
-| `yarn preview` | 빌드 결과물 로컬 미리보기 |
-| `yarn lint` | ESLint 실행 |
 
 ## 주의사항
 
