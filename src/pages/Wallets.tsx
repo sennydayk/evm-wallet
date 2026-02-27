@@ -23,11 +23,11 @@ export const Wallets = observer(() => {
     };
 
     const handleNetworkToggle = () => {
-        const nextNetwork = walletStore.network === 'mainnet' ? 'subnet' : 'mainnet';
+        const nextNetwork = walletStore.network === 'mainnet' ? 'testnet' : 'mainnet';
         const message =
             nextNetwork === 'mainnet'
                 ? 'Switch to mainnet?'
-                : 'Switch to subnet?';
+                : 'Switch to testnet?';
         if (confirm(message)) {
             walletStore.setNetwork(nextNetwork);
         }
@@ -38,7 +38,7 @@ export const Wallets = observer(() => {
             <div className="wallets-page__toolbar">
                 <div className="wallets-page__network">
                     <span className="wallets-page__network-label">
-                        {walletStore.network === 'subnet' && (
+                        {walletStore.network === 'testnet' && (
                             <span
                                 className="wallets-page__help-badge"
                                 aria-label="This is a testnet. Click the toggle to switch to mainnet"
@@ -49,7 +49,7 @@ export const Wallets = observer(() => {
                                 </span>
                             </span>
                         )}
-                        {walletStore.network === 'mainnet' ? 'Mainnet' : 'Subnet'}
+                        {walletStore.network === 'mainnet' ? 'Mainnet' : 'Testnet'}
                     </span>
                     <button
                         type="button"

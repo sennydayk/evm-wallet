@@ -15,7 +15,7 @@ export class WalletStore {
   mnemonic: string = '';
   mnemonicError: string | null = null;
   wallets: Wallet[] = [];
-  network: 'mainnet' | 'subnet' = 'subnet';
+  network: 'mainnet' | 'testnet' = 'testnet';
   loadingAddresses: string[] = [];
 
   constructor() {
@@ -83,7 +83,7 @@ export class WalletStore {
     }
   };
 
-  setNetwork = (network: 'mainnet' | 'subnet') => {
+  setNetwork = (network: 'mainnet' | 'testnet') => {
     this.network = network;
     this.wallets = this.wallets.map((wallet) => ({
       ...wallet,
