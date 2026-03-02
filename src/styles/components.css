@@ -242,7 +242,53 @@ textarea.input {
 }
 
 .wallet-table__col-balance {
-  width: 120px;
+  width: 160px;
+}
+
+.wallet-table__balance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.wallet-table__balance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wallet-table__token-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.wallet-table__token-badge--ctc {
+  background-color: var(--color-mint-muted);
+  color: var(--color-mint);
+}
+
+.wallet-table__token-badge--space {
+  background-color: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+}
+
+.wallet-table__token-badge--usdc {
+  background-color: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.wallet-table__balance-value {
+  font-family: JetBrains Mono, Consolas, monospace;
+  text-align: right;
+  flex: 1;
 }
 
 .wallet-table__address {

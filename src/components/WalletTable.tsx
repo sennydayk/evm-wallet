@@ -88,7 +88,7 @@ export const WalletTable = ({
                             Retry
                           </Button>
                         </div>
-                      ) : wallet.balance === null ? (
+                      ) : Object.values(wallet.balance).every((v) => v === null) ? (
                         <Button
                           size="sm"
                           onClick={() => onFetchBalance(wallet.address)}
@@ -107,7 +107,20 @@ export const WalletTable = ({
                           )}
                         </Button>
                       ) : (
-                        <span>{wallet.balance}</span>
+                        <div className="wallet-table__balance-list">
+                          <div className="wallet-table__balance-row">
+                            <span className="wallet-table__token-badge wallet-table__token-badge--ctc">CTC</span>
+                            <span className="wallet-table__balance-value">{wallet.balance.ctc ?? '-'}</span>
+                          </div>
+                          <div className="wallet-table__balance-row">
+                            <span className="wallet-table__token-badge wallet-table__token-badge--space">SPACE</span>
+                            <span className="wallet-table__balance-value">{wallet.balance.space ?? '-'}</span>
+                          </div>
+                          <div className="wallet-table__balance-row">
+                            <span className="wallet-table__token-badge wallet-table__token-badge--usdc">USDC</span>
+                            <span className="wallet-table__balance-value">{wallet.balance.usdc ?? '-'}</span>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </td>
