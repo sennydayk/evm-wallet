@@ -4,9 +4,7 @@ import Router from './Routes';
 function App() {
 
   return (
-    <>
       <Router />
-    </> 
   )
 }
 

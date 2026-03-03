@@ -1,4 +1,5 @@
 import { JsonRpcProvider, Contract, ethers } from "ethers";
+import { RPC_URLS } from "../constants/rpc";
 
 const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -16,24 +17,24 @@ export const TOKEN_CONFIGS: Record<'mainnet' | 'testnet', NetworkTokens> = {
   mainnet: {
     space: {
       contractAddress: "0x7ab7C6A935Ab2D1437398790C9C0660af62A80b9",
-      rpcUrl: "https://mainnet3.creditcoin.network",
+      rpcUrl: RPC_URLS.creditcoin.mainnet,
       decimals: 18,
     },
     usdc: {
       contractAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      rpcUrl: "https://mainnet-proxy-rpc.creditcoin.network",
+      rpcUrl: RPC_URLS.ethereum.mainnet,
       decimals: 6,
     },
   },
   testnet: {
     space: {
       contractAddress: "0xfaFAd008f017C326B62FbfddA7fb2335A5c82247",
-      rpcUrl: "https://rpc.cc3-testnet.creditcoin.network",
+      rpcUrl: RPC_URLS.creditcoin.testnet,
       decimals: 18,
     },
     usdc: {
       contractAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-      rpcUrl: "https://sepolia-proxy-rpc.creditcoin.network",
+      rpcUrl: RPC_URLS.ethereum.testnet,
       decimals: 6,
     },
   },
