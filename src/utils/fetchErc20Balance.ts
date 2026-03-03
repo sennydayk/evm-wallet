@@ -4,29 +4,47 @@ const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
 ];
 
-const RPC_URLS = {
-  mainnet: "https://mainnet3.creditcoin.network",
-  testnet: "https://rpc.cc3-testnet.creditcoin.network",
-  };
+type TokenConfig = {
+  contractAddress: string;
+  rpcUrl: string;
+  decimals: number;
+};
 
-  export const CONTRACT_ADDRESSES = {
-    mainnet: {
-      space: "0x7ab7C6A935Ab2D1437398790C9C0660af62A80b9",
-      usdc: "0x0000000000000000000000000000000000000000",
-    },
-    testnet: {
-      space: "0xfaFAd008f017C326B62FbfddA7fb2335A5c82247",
-      usdc: "0x0000000000000000000000000000000000000000",
-    },
-  }
+type NetworkTokens = Record<string, TokenConfig>;
 
-  export const fetchErc20Balance = async (
-    address: string,
-    contractAddress: string,
-    network: 'mainnet' | 'testnet',
-  ): Promise<string> => {
-    const provider = new JsonRpcProvider(RPC_URLS[network]);
-    const contract = new Contract(contractAddress, ERC20_ABI, provider);
-    const balance = await contract.balanceOf(address);
-    return ethers.formatEther(balance);
-  }
+export const TOKEN_CONFIGS: Record<'mainnet' | 'testnet', NetworkTokens> = {
+  mainnet: {
+    space: {
+      contractAddress: "0x7ab7C6A935Ab2D1437398790C9C0660af62A80b9",
+      rpcUrl: "https://mainnet3.creditcoin.network",
+      decimals: 18,
+    },
+    usdc: {
+      contractAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      rpcUrl: "https://mainnet-proxy-rpc.creditcoin.network",
+      decimals: 6,
+    },
+  },
+  testnet: {
+    space: {
+      contractAddress: "0xfaFAd008f017C326B62FbfddA7fb2335A5c82247",
+      rpcUrl: "https://rpc.cc3-testnet.creditcoin.network",
+      decimals: 18,
+    },
+    usdc: {
+      contractAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+      rpcUrl: "https://sepolia-proxy-rpc.creditcoin.network",
+      decimals: 6,
+    },
+  },
+};
+
+export const fetchErc20Balance = async (
+  address: string,
+  tokenConfig: TokenConfig,
+): Promise<string> => {
+  const provider = new JsonRpcProvider(tokenConfig.rpcUrl);
+  const contract = new Contract(tokenConfig.contractAddress, ERC20_ABI, provider);
+  const balance = await contract.balanceOf(address);
+  return ethers.formatUnits(balance, tokenConfig.decimals);
+};

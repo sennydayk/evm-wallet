@@ -2,7 +2,7 @@ import { makeObservable, observable, action, runInAction } from 'mobx';
 import { createMnemonic } from '../utils/createMnemonic';
 import { deriveWallet } from '../utils/deriveWallet';
 import { fetchBalance as fetchCtcBalance } from '../utils/fetchBalance';
-import { fetchErc20Balance, CONTRACT_ADDRESSES } from '../utils/fetchErc20Balance';
+import { fetchErc20Balance, TOKEN_CONFIGS } from '../utils/fetchErc20Balance';
 
 export interface Wallet {
   index: number;
@@ -59,17 +59,17 @@ export class WalletStore {
       this.loadingAddresses = [...this.loadingAddresses, address];
     });
     try {
-      const [ctc, space] = await Promise.all([
+      const [ctc, space, usdc] = await Promise.all([
         fetchCtcBalance(address, this.network),
-        fetchErc20Balance(address, CONTRACT_ADDRESSES[this.network].space, this.network),
-        // fetchErc20Balance(address, CONTRACT_ADDRESSES[this.network].usdc, this.network),
+        fetchErc20Balance(address, TOKEN_CONFIGS[this.network].space),
+        fetchErc20Balance(address, TOKEN_CONFIGS[this.network].usdc),
       ]);
       runInAction(() => {
         this.loadingAddresses = this.loadingAddresses.filter((a) => a !== address);
         const idx = this.wallets.findIndex((w) => w.address === address);
         if (idx >= 0) {
           this.wallets = this.wallets.map((w, i) =>
-            i === idx ? { ...w, balance: {...w.balance, ctc, space }, balanceError: null } : w
+            i === idx ? { ...w, balance: { ctc, space, usdc }, balanceError: null } : w
           );
         }
       });
