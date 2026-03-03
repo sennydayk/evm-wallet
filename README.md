@@ -25,23 +25,48 @@ EVM 호환 블록체인용 웹 지갑입니다. Creditcoin Network 메인넷 및
 
 ```
 src/
+├── assets/          # SVG 아이콘
+│   ├── copy.svg
+│   ├── arrow-left-right.svg
+│   ├── eye.svg
+│   ├── eye-off.svg
+│   └── check.svg
+├── components/
+│   ├── layout/      # PageLayout, Header
+│   │   ├── PageLayout.tsx
+│   │   └── Header.tsx
+│   ├── ui/          # Button, Input, CopyButton
+│   │   ├── Button.tsx
+│   │   ├── Input.tsx
+│   │   └── CopyButton.tsx
+│   └── WalletTable.tsx
+├── constants/
+│   └── rpc.ts       # RPC URL 상수
+├── hooks/
+│   └── useCopyToClipboard.ts
 ├── pages/           # 페이지 컴포넌트
 │   ├── Main.tsx     # 메인 (지갑 생성/가져오기 선택)
 │   ├── Create.tsx   # 니모닉 생성
 │   ├── Import.tsx   # 니모닉 가져오기
 │   └── Wallets.tsx  # 지갑 목록
-├── components/
-│   ├── layout/      # PageLayout, Header
-│   ├── ui/          # Button, Input, CopyButton
-│   └── WalletTable.tsx
 ├── stores/
 │   └── walletStore.ts   # MobX 지갑 상태
+├── styles/
+│   ├── variables.css
+│   ├── components.css
+│   └── page/
+│       ├── Main.css
+│       ├── Create.css
+│       ├── Import.css
+│       └── Wallets.css
 ├── utils/
 │   ├── createMnemonic.ts
 │   ├── deriveWallet.ts
-│   └── fetchBalance.ts
-├── styles/
+│   ├── fetchBalance.ts
+│   └── fetchErc20Balance.ts
 ├── App.tsx
+├── App.css
+├── index.css
 ├── Routes.tsx
 └── main.tsx
 ```
