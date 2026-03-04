@@ -1,8 +1,8 @@
-import type { Wallet } from '../stores/walletStore';
-import { Button } from './ui/Button';
-import { CopyButton } from './ui/CopyButton';
-import eyeIcon from '../assets/eye.svg';
-import eyeOffIcon from '../assets/eye-off.svg';
+import type { Wallet } from "../stores/walletStore";
+import { Button } from "./ui/Button";
+import { CopyButton } from "./ui/CopyButton";
+import eyeIcon from "../assets/eye.svg";
+import eyeOffIcon from "../assets/eye-off.svg";
 
 export interface WalletTableProps {
   wallets: Wallet[];
@@ -10,6 +10,7 @@ export interface WalletTableProps {
   viewPrivateKey: Record<number, boolean>;
   onViewPrivateKey: (index: number) => void;
   onFetchBalance: (address: string) => void;
+  onSend: (address: string) => void;
 }
 
 export const WalletTable = ({
@@ -18,6 +19,7 @@ export const WalletTable = ({
   viewPrivateKey,
   onViewPrivateKey,
   onFetchBalance,
+  onSend,
 }: WalletTableProps) => {
   return (
     <div className="wallet-table">
@@ -41,24 +43,30 @@ export const WalletTable = ({
             ) : (
               wallets.map((wallet) => (
                 <tr key={wallet.index}>
-                  <td className="wallet-table__col-index">{wallet.index + 1}</td>
+                  <td className="wallet-table__col-index">
+                    {wallet.index + 1}
+                  </td>
                   <td className="wallet-table__address">{wallet.address}</td>
                   <td className="wallet-table__col-private-key">
                     <div className="wallet-table__cell-action">
                       <span className="wallet-table__private-key">
                         {viewPrivateKey[wallet.index]
                           ? wallet.privateKey
-                          : '**********************'}
+                          : "**********************"}
                       </span>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="wallet-table__icon-btn"
                         onClick={() => onViewPrivateKey(wallet.index)}
-                        aria-label={viewPrivateKey[wallet.index] ? 'Hide' : 'Show'}
+                        aria-label={
+                          viewPrivateKey[wallet.index] ? "Hide" : "Show"
+                        }
                       >
                         <img
-                          src={viewPrivateKey[wallet.index] ? eyeOffIcon : eyeIcon}
+                          src={
+                            viewPrivateKey[wallet.index] ? eyeOffIcon : eyeIcon
+                          }
                           alt=""
                           className="wallet-table__icon"
                         />
@@ -82,13 +90,17 @@ export const WalletTable = ({
                             size="sm"
                             onClick={() => onFetchBalance(wallet.address)}
                             disabled={loadingAddresses.includes(wallet.address)}
-                            aria-busy={loadingAddresses.includes(wallet.address)}
+                            aria-busy={loadingAddresses.includes(
+                              wallet.address,
+                            )}
                             aria-label="Retry fetch balance"
                           >
                             Retry
                           </Button>
                         </div>
-                      ) : Object.values(wallet.balance).every((v) => v === null) ? (
+                      ) : Object.values(wallet.balance).every(
+                          (v) => v === null,
+                        ) ? (
                         <Button
                           size="sm"
                           onClick={() => onFetchBalance(wallet.address)}
@@ -96,34 +108,61 @@ export const WalletTable = ({
                           aria-busy={loadingAddresses.includes(wallet.address)}
                           aria-label={
                             loadingAddresses.includes(wallet.address)
-                              ? 'Fetching balance'
-                              : 'Fetch balance'
+                              ? "Fetching balance"
+                              : "Fetch balance"
                           }
                         >
                           {loadingAddresses.includes(wallet.address) ? (
-                            <span className="wallet-table__spinner" aria-hidden />
+                            <span
+                              className="wallet-table__spinner"
+                              aria-hidden
+                            />
                           ) : (
-                            'Fetch balance'
+                            "Fetch balance"
                           )}
                         </Button>
                       ) : (
                         <div className="wallet-table__balance-list">
                           <div className="wallet-table__balance-row">
-                            <span className="wallet-table__token-badge wallet-table__token-badge--eth">ETH</span>
-                            <span className="wallet-table__balance-value">{wallet.balance.eth ?? '-'}</span>
+                            <span className="wallet-table__token-badge wallet-table__token-badge--eth">
+                              ETH
+                            </span>
+                            <span className="wallet-table__balance-value">
+                              {wallet.balance.eth ?? "-"}
+                            </span>
                           </div>
                           <div className="wallet-table__balance-row">
-                            <span className="wallet-table__token-badge wallet-table__token-badge--ctc">CTC</span>
-                            <span className="wallet-table__balance-value">{wallet.balance.ctc ?? '-'}</span>
+                            <span className="wallet-table__token-badge wallet-table__token-badge--ctc">
+                              CTC
+                            </span>
+                            <span className="wallet-table__balance-value">
+                              {wallet.balance.ctc ?? "-"}
+                            </span>
                           </div>
                           <div className="wallet-table__balance-row">
-                            <span className="wallet-table__token-badge wallet-table__token-badge--space">SPACE</span>
-                            <span className="wallet-table__balance-value">{wallet.balance.space ?? '-'}</span>
+                            <span className="wallet-table__token-badge wallet-table__token-badge--space">
+                              SPACE
+                            </span>
+                            <span className="wallet-table__balance-value">
+                              {wallet.balance.space ?? "-"}
+                            </span>
                           </div>
                           <div className="wallet-table__balance-row">
-                            <span className="wallet-table__token-badge wallet-table__token-badge--usdc">USDC</span>
-                            <span className="wallet-table__balance-value">{wallet.balance.usdc ?? '-'}</span>
+                            <span className="wallet-table__token-badge wallet-table__token-badge--usdc">
+                              USDC
+                            </span>
+                            <span className="wallet-table__balance-value">
+                              {wallet.balance.usdc ?? "-"}
+                            </span>
                           </div>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="wallet-table__send-btn"
+                            onClick={() => onSend(wallet.address)}
+                          >
+                            Send
+                          </Button>
                         </div>
                       )}
                     </div>

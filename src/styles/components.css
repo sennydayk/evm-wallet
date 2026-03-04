@@ -291,13 +291,19 @@ textarea.input {
 }
 
 .wallet-table__balance-value {
-  font-family: JetBrains Mono, Consolas, monospace;
+  font-family:
+    JetBrains Mono,
+    Consolas,
+    monospace;
   text-align: right;
   flex: 1;
 }
 
 .wallet-table__address {
-  font-family: JetBrains Mono, Consolas, monospace;
+  font-family:
+    JetBrains Mono,
+    Consolas,
+    monospace;
   font-size: 13px;
   word-break: break-all;
   max-width: 200px;
@@ -316,7 +322,10 @@ textarea.input {
 }
 
 .wallet-table__private-key {
-  font-family: JetBrains Mono, Consolas, monospace;
+  font-family:
+    JetBrains Mono,
+    Consolas,
+    monospace;
   font-size: 12px;
   word-break: break-all;
   overflow-wrap: break-word;
@@ -387,6 +396,235 @@ textarea.input {
 .copy-btn__icon--copied {
   filter: brightness(0) saturate(100%) invert(72%) sepia(53%) saturate(1200%)
     hue-rotate(118deg) brightness(95%) contrast(101%);
+}
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropdown__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dropdown__trigger:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.dropdown__trigger:focus {
+  outline: none;
+  border-color: var(--color-mint);
+}
+
+.dropdown__trigger--open {
+  border-color: var(--color-mint);
+}
+
+.dropdown__trigger:disabled {
+  cursor: not-allowed;
+}
+
+.dropdown__selected {
+  font-weight: 600;
+}
+
+.dropdown__arrow {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  transition: transform 0.2s;
+}
+
+.dropdown__arrow--open {
+  transform: rotate(180deg);
+}
+
+.dropdown__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown__option {
+  padding: 8px 11px;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dropdown__option:hover {
+  background-color: var(--color-mint-muted);
+}
+
+.dropdown__option--selected {
+  color: var(--color-mint);
+  font-weight: 600;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 32px;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.modal__address {
+  font-family:
+    JetBrains Mono,
+    Consolas,
+    monospace;
+  font-size: 13px;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.modal__input {
+  width: 100%;
+}
+
+.modal__error {
+  color: var(--color-error);
+  font-size: 13px;
+  margin: 0;
+  padding: 10px 12px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  word-break: break-word;
+}
+
+.modal__success {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--color-mint-muted);
+  border: 1px solid rgba(27, 238, 176, 0.3);
+}
+
+.modal__success-title {
+  color: var(--color-mint);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal__tx-hash-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal__tx-hash {
+  font-family:
+    JetBrains Mono,
+    Consolas,
+    monospace;
+  font-size: 12px;
+  color: var(--color-text);
+  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+}
+
+.modal__copy-btn {
+  min-width: auto;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal__actions .btn {
+  min-width: 120px;
+}
+
+.modal__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: modal__spin 0.6s linear infinite;
+}
+
+@keyframes modal__spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* WalletTable Send Button */
+.wallet-table__send-btn {
+  margin-top: 8px;
 }
 
 /* Shared text styles */
