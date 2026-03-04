@@ -270,6 +270,11 @@ textarea.input {
   flex-shrink: 0;
 }
 
+.wallet-table__token-badge--eth {
+  background-color: rgb(60, 60, 60);
+  color: rgb(180, 180, 180);
+}
+
 .wallet-table__token-badge--ctc {
   background-color: var(--color-mint-muted);
   color: var(--color-mint);

@@ -50,7 +50,7 @@ export class WalletStore {
 
   deriveWallet = () => {
     const wallet = deriveWallet(this.mnemonic, this.wallets.length);
-    this.wallets = [...this.wallets, { ...wallet, balance: {ctc: null, space: null, usdc: null}, balanceError: null }];
+    this.wallets = [...this.wallets, { ...wallet, balance: {ctc: null, space: null, usdc: null, eth: null}, balanceError: null }];
   };
 
   fetchBalance = async (address: string) => {
@@ -58,13 +58,13 @@ export class WalletStore {
       this.loadingAddresses = [...this.loadingAddresses, address];
     });
     try {
-      const { ctc, space, usdc } = await fetchBalances(address, this.network);
+      const { ctc, space, usdc, eth } = await fetchBalances(address, this.network);
       runInAction(() => {
         this.loadingAddresses = this.loadingAddresses.filter((a) => a !== address);
         const idx = this.wallets.findIndex((w) => w.address === address);
         if (idx >= 0) {
           this.wallets = this.wallets.map((w, i) =>
-            i === idx ? { ...w, balance: { ctc, space, usdc }, balanceError: null } : w
+            i === idx ? { ...w, balance: { ctc, space, usdc, eth }, balanceError: null } : w
           );
         }
       });
@@ -87,7 +87,7 @@ export class WalletStore {
     this.network = network;
     this.wallets = this.wallets.map((wallet) => ({
       ...wallet,
-      balance: { ctc: null, space: null, usdc: null },
+      balance: { ctc: null, space: null, usdc: null, eth: null },
       balanceError: null,
     }));
   };

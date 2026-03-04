@@ -109,6 +109,10 @@ export const WalletTable = ({
                       ) : (
                         <div className="wallet-table__balance-list">
                           <div className="wallet-table__balance-row">
+                            <span className="wallet-table__token-badge wallet-table__token-badge--eth">ETH</span>
+                            <span className="wallet-table__balance-value">{wallet.balance.eth ?? '-'}</span>
+                          </div>
+                          <div className="wallet-table__balance-row">
                             <span className="wallet-table__token-badge wallet-table__token-badge--ctc">CTC</span>
                             <span className="wallet-table__balance-value">{wallet.balance.ctc ?? '-'}</span>
                           </div>
