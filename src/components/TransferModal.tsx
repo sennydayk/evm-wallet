@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { walletStore } from "../stores/walletStore";
+import { TOKEN_CONFIGS } from "../constants/tokens";
+import { estimateGas } from "../utils/sendTransaction";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { Dropdown } from "./ui/Dropdown";
@@ -18,6 +20,22 @@ const TOKEN_OPTIONS = [
   { value: "usdc", label: "USDC" },
 ];
 
+const GAS_TOKEN_LABEL: Record<string, string> = {
+  ctc: "CTC",
+  eth: "ETH",
+  space: "CTC",
+  usdc: "ETH",
+};
+
+const isValidAddress = (address: string) => /^0x[0-9a-fA-F]{40}$/.test(address);
+
+const isValidAmount = (value: string) => {
+  const num = Number(value);
+  return !isNaN(num) && num > 0;
+};
+
+const DEBOUNCE_MS = 500;
+
 export const TransferModal = observer(
   ({ fromAddress, onClose }: TransferModalProps) => {
     const [toAddress, setToAddress] = useState("");
@@ -26,6 +44,68 @@ export const TransferModal = observer(
     const [sending, setSending] = useState(false);
     const [txHash, setTxHash] = useState<string | undefined>();
     const [error, setError] = useState<string | undefined>();
+    const [gasFee, setGasFee] = useState<string | undefined>();
+    const [estimating, setEstimating] = useState(false);
+    const [gasError, setGasError] = useState<string | undefined>();
+
+    const lastEstimatedRef = useRef("");
+    const requestIdRef = useRef(0);
+
+    const isFormValid = isValidAddress(toAddress) && isValidAmount(amount);
+
+    useEffect(() => {
+      if (!isFormValid) {
+        setGasFee(undefined);
+        setGasError(undefined);
+        lastEstimatedRef.current = "";
+        return;
+      }
+
+      const paramsKey = `${selectedToken}:${toAddress}:${amount}`;
+      if (paramsKey === lastEstimatedRef.current) {
+        return;
+      }
+
+      const currentRequestId = ++requestIdRef.current;
+
+      const timer = setTimeout(async () => {
+        const wallet = walletStore.wallets.find(
+          (w) => w.address === fromAddress,
+        );
+        if (!wallet) return;
+
+        const tokenConfig = TOKEN_CONFIGS[walletStore.network][selectedToken];
+
+        setEstimating(true);
+        setGasError(undefined);
+
+        try {
+          const fee = await estimateGas(tokenConfig, {
+            toAddress,
+            amount,
+            privateKey: wallet.privateKey,
+          });
+
+          if (currentRequestId !== requestIdRef.current) return;
+
+          setGasFee(fee);
+          lastEstimatedRef.current = paramsKey;
+        } catch (err) {
+          if (currentRequestId !== requestIdRef.current) return;
+
+          setGasError(
+            err instanceof Error ? err.message : "Failed to estimate gas",
+          );
+          setGasFee(undefined);
+        } finally {
+          if (currentRequestId === requestIdRef.current) {
+            setEstimating(false);
+          }
+        }
+      }, DEBOUNCE_MS);
+
+      return () => clearTimeout(timer);
+    }, [selectedToken, toAddress, amount, fromAddress, isFormValid]);
 
     const handleTransfer = async () => {
       setError(undefined);
@@ -46,8 +126,6 @@ export const TransferModal = observer(
         setSending(false);
       }
     };
-
-    const isFormValid = toAddress.trim() !== "" && Number(amount) > 0;
 
     return (
       <div className="modal-overlay" onClick={onClose}>
@@ -95,6 +173,28 @@ export const TransferModal = observer(
               disabled={sending || !!txHash}
               className="modal__input"
             />
+          </div>
+
+          <div className="modal__gas-fee">
+            {estimating && (
+              <span className="modal__gas-fee-estimating">
+                <span
+                  className="modal__spinner modal__spinner--sm"
+                  aria-hidden
+                />
+                Estimating gas fee...
+              </span>
+            )}
+            {!estimating && gasFee && (
+              <span className="modal__gas-fee-value">
+                Estimated Gas Fee: {gasFee} {GAS_TOKEN_LABEL[selectedToken]}
+              </span>
+            )}
+            {!estimating && gasError && (
+              <span className="modal__gas-fee-error">
+                Gas estimation failed
+              </span>
+            )}
           </div>
 
           {error && <p className="modal__error">{error}</p>}
