@@ -47,6 +47,7 @@ export class WalletStore {
   };
 
   importWallet = (mnemonic: string) => {
+    this.wallets = [];
     this.mnemonic = mnemonic;
     this.deriveWallet();
   };
