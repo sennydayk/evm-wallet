@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { isError } from "ethers";
 import { observer } from "mobx-react-lite";
 import { walletStore } from "../stores/walletStore";
 import { TOKEN_CONFIGS } from "../constants/tokens";
@@ -27,11 +28,31 @@ const GAS_TOKEN_LABEL: Record<string, string> = {
   usdc: "ETH",
 };
 
-const isValidAddress = (address: string) => /^0x[0-9a-fA-F]{40}$/.test(address);
+const getAddressError = (address: string): string | undefined => {
+  if (address === "") return undefined;
+  if (!address.startsWith("0x")) return "Address must start with 0x";
+  if (!/^0x[0-9a-fA-F]{40}$/.test(address))
+    return "Invalid address format (0x + 40 hex characters)";
+  return undefined;
+};
 
-const isValidAmount = (value: string) => {
+const getAmountError = (value: string): string | undefined => {
+  if (value === "") return undefined;
   const num = Number(value);
-  return !isNaN(num) && num > 0;
+  if (isNaN(num)) return "Please enter a valid number";
+  if (num <= 0) return "Amount must be greater than 0";
+  return undefined;
+};
+
+const getGasEstimateErrorMessage = (err: unknown): string => {
+  if (isError(err, "INSUFFICIENT_FUNDS"))
+    return "Insufficient funds for gas fee";
+  if (isError(err, "CALL_EXCEPTION"))
+    return "Transaction would likely fail (execution reverted)";
+  if (isError(err, "NETWORK_ERROR")) return "Network connection failed";
+  if (isError(err, "SERVER_ERROR")) return "RPC server error";
+  if (err instanceof Error) return err.message;
+  return "Failed to estimate gas";
 };
 
 const DEBOUNCE_MS = 500;
@@ -51,7 +72,10 @@ export const TransferModal = observer(
     const lastEstimatedRef = useRef("");
     const requestIdRef = useRef(0);
 
-    const isFormValid = isValidAddress(toAddress) && isValidAmount(amount);
+    const addressError = getAddressError(toAddress);
+    const amountError = getAmountError(amount);
+    const isFormValid =
+      !addressError && !amountError && toAddress !== "" && amount !== "";
 
     useEffect(() => {
       if (!isFormValid) {
@@ -93,9 +117,7 @@ export const TransferModal = observer(
         } catch (err) {
           if (currentRequestId !== requestIdRef.current) return;
 
-          setGasError(
-            err instanceof Error ? err.message : "Failed to estimate gas",
-          );
+          setGasError(getGasEstimateErrorMessage(err));
           setGasFee(undefined);
         } finally {
           if (currentRequestId === requestIdRef.current) {
@@ -162,6 +184,9 @@ export const TransferModal = observer(
               disabled={sending || !!txHash}
               className="modal__input"
             />
+            {addressError && (
+              <span className="modal__field-hint">{addressError}</span>
+            )}
           </div>
 
           <div className="modal__field">
@@ -173,6 +198,9 @@ export const TransferModal = observer(
               disabled={sending || !!txHash}
               className="modal__input"
             />
+            {amountError && (
+              <span className="modal__field-hint">{amountError}</span>
+            )}
           </div>
 
           <div className="modal__gas-fee">
@@ -191,9 +219,7 @@ export const TransferModal = observer(
               </span>
             )}
             {!estimating && gasError && (
-              <span className="modal__gas-fee-error">
-                Gas estimation failed
-              </span>
+              <span className="modal__gas-fee-error">{gasError}</span>
             )}
           </div>
 
