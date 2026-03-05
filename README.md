@@ -8,49 +8,54 @@ EVM 호환 블록체인용 웹 지갑입니다. Creditcoin Network 메인넷 및
 - **지갑 가져오기**: 기존 니모닉(12, 15, 18, 21, 24단어)으로 지갑 복구
 - **지갑 목록**: 파생된 지갑 주소, 개인키, 잔액 조회
 - **네트워크 전환**: 메인넷 ↔ 서브넷(테스트넷) 스위치
-- **잔액 조회**: RPC를 통한 실시간 잔액 조회
+- **잔액 조회**: RPC를 통한 실시간 잔액 조회 (ETH, CTC, SPACE, USDC)
+- **트랜잭션 전송**: Native 토큰(ETH, CTC) 및 ERC-20 토큰(SPACE, USDC) 전송
+- **가스비 추정**: 전송 전 실시간 가스비 자동 추정 (debounce + 중복 요청 방지)
 
 ## 기술 스택
 
-| 구분 | 기술 |
-|------|------|
-| 프레임워크 | React 19 |
-| 언어 | TypeScript |
-| 빌드 도구 | Vite 7 |
-| 라우팅 | React Router DOM 7 |
-| 상태 관리 | MobX |
-| 블록체인 | ethers.js 6 |
+| 구분       | 기술               |
+| ---------- | ------------------ |
+| 프레임워크 | React 19           |
+| 언어       | TypeScript         |
+| 빌드 도구  | Vite 7             |
+| 라우팅     | React Router DOM 7 |
+| 상태 관리  | MobX               |
+| 블록체인   | ethers.js 6        |
 
 ## 프로젝트 구조
 
 ```
 src/
-├── assets/          # SVG 아이콘
-│   ├── copy.svg
+├── assets/              # SVG 아이콘
 │   ├── arrow-left-right.svg
+│   ├── check.svg
+│   ├── copy.svg
 │   ├── eye.svg
-│   ├── eye-off.svg
-│   └── check.svg
+│   └── eye-off.svg
 ├── components/
-│   ├── layout/      # PageLayout, Header
-│   │   ├── PageLayout.tsx
-│   │   └── Header.tsx
-│   ├── ui/          # Button, Input, CopyButton
+│   ├── layout/          # 레이아웃 컴포넌트
+│   │   ├── Header.tsx
+│   │   └── PageLayout.tsx
+│   ├── ui/              # 공통 UI 컴포넌트
 │   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   └── CopyButton.tsx
+│   │   ├── CopyButton.tsx
+│   │   ├── Dropdown.tsx     # 드롭다운 (토큰 선택 등)
+│   │   └── Input.tsx
+│   ├── TransferModal.tsx    # 토큰 전송 모달
 │   └── WalletTable.tsx
 ├── constants/
-│   └── rpc.ts       # RPC URL 상수
+│   ├── rpc.ts           # RPC URL 상수
+│   └── tokens.ts        # 토큰 설정 (Native/ERC-20 구분, 컨트랙트 주소)
 ├── hooks/
 │   └── useCopyToClipboard.ts
-├── pages/           # 페이지 컴포넌트
-│   ├── Main.tsx     # 메인 (지갑 생성/가져오기 선택)
-│   ├── Create.tsx   # 니모닉 생성
-│   ├── Import.tsx   # 니모닉 가져오기
-│   └── Wallets.tsx  # 지갑 목록
+├── pages/
+│   ├── Main.tsx         # 메인 (지갑 생성/가져오기 선택)
+│   ├── Create.tsx       # 니모닉 생성
+│   ├── Import.tsx       # 니모닉 가져오기
+│   └── Wallets.tsx      # 지갑 목록 + 전송 모달 연동
 ├── stores/
-│   └── walletStore.ts   # MobX 지갑 상태
+│   └── walletStore.ts   # MobX 지갑 상태 (잔액 조회, 전송 액션)
 ├── styles/
 │   ├── variables.css
 │   ├── components.css
@@ -60,10 +65,13 @@ src/
 │       ├── Import.css
 │       └── Wallets.css
 ├── utils/
+│   ├── batchRpcCall.ts          # JSON-RPC 배치 요청
+│   ├── buildErc20Transfer.ts    # ERC-20 토큰 전송 트랜잭션 빌드
+│   ├── buildNativeTransfer.ts   # Native 토큰 전송 트랜잭션 빌드
 │   ├── createMnemonic.ts
 │   ├── deriveWallet.ts
-│   ├── fetchBalance.ts
-│   └── fetchErc20Balance.ts
+│   ├── fetchBalances.ts         # 멀티 토큰 잔액 조회
+│   └── sendTransaction.ts       # 트랜잭션 전송 + 가스비 추정
 ├── App.tsx
 ├── App.css
 ├── index.css
@@ -80,32 +88,51 @@ src/
 
 ### 니모닉 생성 (Create)
 
-| 상황 | 처리 |
-|------|------|
+| 상황                    | 처리                                                        |
+| ----------------------- | ----------------------------------------------------------- |
 | `createMnemonic()` 실패 | `walletStore.mnemonicError`에 에러 메시지 저장 후 UI에 표시 |
-| Error 타입 | `err.message` 사용 |
-| 기타 throw | `'Failed to create mnemonic phrase'` 기본 메시지 |
+| Error 타입              | `err.message` 사용                                          |
+| 기타 throw              | `'Failed to create mnemonic phrase'` 기본 메시지            |
 
 ### 지갑 가져오기 (Import)
 
-| 상황 | 처리 |
-|------|------|
+| 상황                                          | 처리                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------- |
 | 단어 수 검증 실패 (12, 15, 18, 21, 24가 아님) | `'Mnemonic must be 12, 15, 18, 21, or 24 words.'` 표시, import 차단 |
-| 입력 변경 시 | 에러 메시지 초기화 |
+| 입력 변경 시                                  | 에러 메시지 초기화                                                  |
 
 ### 잔액 조회 (Wallets)
 
-| 상황 | 처리 |
-|------|------|
+| 상황          | 처리                                          |
+| ------------- | --------------------------------------------- |
 | RPC 호출 실패 | 해당 지갑의 `balanceError`에 에러 메시지 저장 |
-| Error 타입 | `err.message` 사용 |
-| 기타 throw | `'Failed to fetch balance'` 기본 메시지 |
-| UI | Retry 버튼 표시로 재시도 가능 |
+| Error 타입    | `err.message` 사용                            |
+| 기타 throw    | `'Failed to fetch balance'` 기본 메시지       |
+| UI            | Retry 버튼 표시로 재시도 가능                 |
+
+### 트랜잭션 전송 (TransferModal)
+
+| 상황                | 처리                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| 수신 주소 형식 오류 | Input 하단에 보조 텍스트 표시 (`"Address must start with 0x"`, `"Invalid address format"`)         |
+| 금액 형식 오류      | Input 하단에 보조 텍스트 표시 (`"Please enter a valid number"`, `"Amount must be greater than 0"`) |
+| 전송 실패           | 모달 내 에러 메시지 표시, 모달 유지하여 재시도 가능                                                |
+| 전송 성공           | tx hash 표시 + 복사 버튼 제공                                                                      |
+
+### 가스비 추정 (TransferModal)
+
+| 상황                                  | 처리                                                   |
+| ------------------------------------- | ------------------------------------------------------ |
+| 잔액 부족 (`INSUFFICIENT_FUNDS`)      | `"Insufficient funds for gas fee"`                     |
+| 컨트랙트 실행 실패 (`CALL_EXCEPTION`) | `"Transaction would likely fail (execution reverted)"` |
+| 네트워크 오류 (`NETWORK_ERROR`)       | `"Network connection failed"`                          |
+| RPC 서버 오류 (`SERVER_ERROR`)        | `"RPC server error"`                                   |
+| 기타 에러                             | `err.message` 원문 표시 (fallback)                     |
 
 ### 지갑 목록 페이지 접근 (Wallets)
 
-| 상황 | 처리 |
-|------|------|
+| 상황                                     | 처리                              |
+| ---------------------------------------- | --------------------------------- |
 | `mnemonic` 없음 (새로고침 등으로 초기화) | alert 후 메인(`/`)으로 리다이렉트 |
 
 ## 시작하기
