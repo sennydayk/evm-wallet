@@ -81,26 +81,9 @@ export const WalletTable = ({
                   </td>
                   <td className="wallet-table__col-balance">
                     <div className="wallet-table__cell-action">
-                      {wallet.balanceError ? (
-                        <div className="wallet-table__balance-error">
-                          <span className="wallet-table__balance-error-text">
-                            {wallet.balanceError}
-                          </span>
-                          <Button
-                            size="sm"
-                            onClick={() => onFetchBalance(wallet.address)}
-                            disabled={loadingAddresses.includes(wallet.address)}
-                            aria-busy={loadingAddresses.includes(
-                              wallet.address,
-                            )}
-                            aria-label="Retry fetch balance"
-                          >
-                            Retry
-                          </Button>
-                        </div>
-                      ) : Object.values(wallet.balance).every(
-                          (v) => v === null,
-                        ) ? (
+                      {Object.values(wallet.balance).every((v) => v === null) &&
+                      !wallet.chainErrors.creditcoin &&
+                      !wallet.chainErrors.ethereum ? (
                         <Button
                           size="sm"
                           onClick={() => onFetchBalance(wallet.address)}
@@ -155,6 +138,31 @@ export const WalletTable = ({
                               {wallet.balance.usdc ?? "-"}
                             </span>
                           </div>
+                          {(wallet.chainErrors.creditcoin ||
+                            wallet.chainErrors.ethereum) && (
+                            <div className="wallet-table__chain-errors">
+                              {wallet.chainErrors.creditcoin && (
+                                <span className="wallet-table__chain-error-text">
+                                  Creditcoin: {wallet.chainErrors.creditcoin}
+                                </span>
+                              )}
+                              {wallet.chainErrors.ethereum && (
+                                <span className="wallet-table__chain-error-text">
+                                  Ethereum: {wallet.chainErrors.ethereum}
+                                </span>
+                              )}
+                              <Button
+                                size="sm"
+                                onClick={() => onFetchBalance(wallet.address)}
+                                disabled={loadingAddresses.includes(
+                                  wallet.address,
+                                )}
+                                aria-label="Retry fetch balance"
+                              >
+                                Retry
+                              </Button>
+                            </div>
+                          )}
                           <Button
                             variant="secondary"
                             size="sm"

@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, runInAction } from "mobx";
 import { createMnemonic } from "../utils/createMnemonic";
 import { deriveWallet } from "../utils/deriveWallet";
-import { fetchBalances } from "../utils/fetchBalances";
+import { fetchBalances, type ChainErrors } from "../utils/fetchBalances";
 import { TOKEN_CONFIGS } from "../constants/tokens";
 import { sendTransaction } from "../utils/sendTransaction";
 
@@ -10,7 +10,7 @@ export interface Wallet {
   address: string;
   privateKey: string;
   balance: Record<string, string | null>;
-  balanceError: string | null;
+  chainErrors: ChainErrors;
 }
 
 export class WalletStore {
@@ -59,7 +59,7 @@ export class WalletStore {
       {
         ...wallet,
         balance: { ctc: null, space: null, usdc: null, eth: null },
-        balanceError: null,
+        chainErrors: { creditcoin: null, ethereum: null },
       },
     ];
   };
@@ -68,39 +68,18 @@ export class WalletStore {
     runInAction(() => {
       this.loadingAddresses = [...this.loadingAddresses, address];
     });
-    try {
-      const { ctc, space, usdc, eth } = await fetchBalances(
-        address,
-        this.network,
+    const { balances, errors } = await fetchBalances(address, this.network);
+    runInAction(() => {
+      this.loadingAddresses = this.loadingAddresses.filter(
+        (a) => a !== address,
       );
-      runInAction(() => {
-        this.loadingAddresses = this.loadingAddresses.filter(
-          (a) => a !== address,
+      const idx = this.wallets.findIndex((w) => w.address === address);
+      if (idx >= 0) {
+        this.wallets = this.wallets.map((w, i) =>
+          i === idx ? { ...w, balance: balances, chainErrors: errors } : w,
         );
-        const idx = this.wallets.findIndex((w) => w.address === address);
-        if (idx >= 0) {
-          this.wallets = this.wallets.map((w, i) =>
-            i === idx
-              ? { ...w, balance: { ctc, space, usdc, eth }, balanceError: null }
-              : w,
-          );
-        }
-      });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch balance";
-      runInAction(() => {
-        this.loadingAddresses = this.loadingAddresses.filter(
-          (a) => a !== address,
-        );
-        const idx = this.wallets.findIndex((w) => w.address === address);
-        if (idx >= 0) {
-          this.wallets = this.wallets.map((w, i) =>
-            i === idx ? { ...w, balanceError: errorMessage } : w,
-          );
-        }
-      });
-    }
+      }
+    });
   };
 
   setNetwork = (network: "mainnet" | "testnet") => {
@@ -108,7 +87,7 @@ export class WalletStore {
     this.wallets = this.wallets.map((wallet) => ({
       ...wallet,
       balance: { ctc: null, space: null, usdc: null, eth: null },
-      balanceError: null,
+      chainErrors: { creditcoin: null, ethereum: null },
     }));
   };
 

@@ -7,15 +7,30 @@ const iface = new Interface([
   "function balanceOf(address owner) view returns (uint256)",
 ]);
 
+export type ChainErrors = {
+  creditcoin: string | null;
+  ethereum: string | null;
+};
+
+export type BalanceResult = {
+  balances: {
+    ctc: string | null;
+    space: string | null;
+    eth: string | null;
+    usdc: string | null;
+  };
+  errors: ChainErrors;
+};
+
 export const fetchBalances = async (
   address: string,
   network: "mainnet" | "testnet",
-): Promise<{ ctc: string; space: string; usdc: string; eth: string }> => {
+): Promise<BalanceResult> => {
   const spaceConfig = TOKEN_CONFIGS[network].space;
   const usdcConfig = TOKEN_CONFIGS[network].usdc;
   const calldata = iface.encodeFunctionData("balanceOf", [address]);
 
-  const [ctcResults, ethResults] = await Promise.all([
+  const [ctcResult, ethResult] = await Promise.allSettled([
     batchRpcCall(RPC_URLS.creditcoin[network], [
       { method: "eth_getBalance", params: [address, "latest"] },
       {
@@ -33,9 +48,33 @@ export const fetchBalances = async (
   ]);
 
   return {
-    ctc: ethers.formatEther(ctcResults[0]),
-    space: ethers.formatUnits(ctcResults[1], spaceConfig.decimals),
-    eth: ethers.formatEther(ethResults[0]),
-    usdc: ethers.formatUnits(ethResults[1], usdcConfig.decimals),
+    balances: {
+      ctc:
+        ctcResult.status === "fulfilled"
+          ? ethers.formatEther(ctcResult.value[0])
+          : null,
+      space:
+        ctcResult.status === "fulfilled"
+          ? ethers.formatUnits(ctcResult.value[1], spaceConfig.decimals)
+          : null,
+      eth:
+        ethResult.status === "fulfilled"
+          ? ethers.formatEther(ethResult.value[0])
+          : null,
+      usdc:
+        ethResult.status === "fulfilled"
+          ? ethers.formatUnits(ethResult.value[1], usdcConfig.decimals)
+          : null,
+    },
+    errors: {
+      creditcoin:
+        ctcResult.status === "rejected"
+          ? (ctcResult.reason?.message ?? "Failed to fetch Creditcoin balances")
+          : null,
+      ethereum:
+        ethResult.status === "rejected"
+          ? (ethResult.reason?.message ?? "Failed to fetch Ethereum balances")
+          : null,
+    },
   };
 };
